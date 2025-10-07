@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Наш ToDo List</title>
+    <style>
+        body { font-family: Arial; max-width: 600px; margin: 50px auto; }
+        .task { padding: 10px; margin: 5px; background: #f0f0f0; }
+        input, button { padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🎯 Наш общий ToDo List</h1>
+    
+    <div>
+        <input type="text" id="taskInput" placeholder="Новая задача">
+        <button onclick="addTask()">Добавить</button>
+    </div>
+
+    <div id="tasks"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/tasks';
+
+        // Загружаем задачи при загрузке страницы
+        loadTasks();
+
+        async function loadTasks() {
+            try {
+                const response = await fetch(API_URL);
+                const tasks = await response.json();
+                displayTasks(tasks);
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        async function addTask() {
+            const input = document.getElementById('taskInput');
+            const task = input.value.trim();
+            
+            if (task) {
+                try {
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ task })
+                    });
+                    input.value = '';
+                    loadTasks(); // Перезагружаем список
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                }
+            }
+        }
+
+        function displayTasks(tasks) {
+            const container = document.getElementById('tasks');
+            container.innerHTML = tasks.map(task => 
+                `<div class="task">${task}</div>`
+            ).join('');
+        }
+    </script>
+</body>
+</html>
